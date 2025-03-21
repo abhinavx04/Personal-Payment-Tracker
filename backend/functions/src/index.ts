@@ -1,7 +1,11 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+// Change the import to require since JSON modules need to be imported this way
+const serviceAccount = require("../expense-tracker-bk2-9e58661b4693.json");
 
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+});
 const auth = admin.auth();
 
 interface SignUpData {
@@ -17,13 +21,13 @@ interface GetUserData {
 // ✅ User Signup
 export const signUpUser = functions.https.onCall(async (request) => {
   try {
-    const {email, password, name} = request.data as SignUpData;
+    const { email, password, name } = request.data as SignUpData;
     const user = await auth.createUser({
       email,
       password,
       displayName: name,
     });
-    return {success: true, uid: user.uid};
+    return { success: true, uid: user.uid };
   } catch (error) {
     return {
       success: false,
@@ -35,9 +39,9 @@ export const signUpUser = functions.https.onCall(async (request) => {
 // ✅ Fetch User Data
 export const getUser = functions.https.onCall(async (request) => {
   try {
-    const {uid} = request.data as GetUserData;
+    const { uid } = request.data as GetUserData;
     const user = await auth.getUser(uid);
-    return {success: true, user};
+    return { success: true, user };
   } catch (error) {
     return {
       success: false,
